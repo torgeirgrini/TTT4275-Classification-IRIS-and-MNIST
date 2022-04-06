@@ -1,0 +1,1 @@
+source c:/Users/torge/Documents/my_python_env/ttt4275projectEnv/Scripts/activate
