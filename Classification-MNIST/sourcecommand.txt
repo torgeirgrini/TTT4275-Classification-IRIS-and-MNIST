@@ -1,1 +1,13 @@
 source c:/Users/torge/Documents/my_python_env/ttt4275projectEnv/Scripts/activate
+
+
+create virtual environment
+- https://www.youtube.com/watch?v=8h9w0meM8i4&t=406s&ab_channel=ShwetaLodha
+
+cd ~/Documents/my_python_env
+python -m venv NAME
+NAME/Scripts/Activate.bat
+Ctrl+Shft+P -> Python: Select Interpreter -> Enter Interpreter path ... -> double click NAME/Scripts/python.exe
+source ~/Documents/my_python_env/NAME/Scripts/activate
+
+Now you can use pip install etc...
