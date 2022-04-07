@@ -2,7 +2,7 @@ from keras.datasets import mnist
 import numpy as np
 from matplotlib import pyplot as plt
 from sklearn.neighbors import KNeighborsClassifier
-from sklearn import metrics #confusion_matrix, plot_confusion_matrix
+from sklearn import metrics
 import timeit
 
 def reshapeDataSet(trainX, trainy, testX, testy, numTrainChunks, numTestChunks): 
