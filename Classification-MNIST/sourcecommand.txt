@@ -1,7 +1,7 @@
 source c:/Users/torge/Documents/my_python_env/ttt4275projectEnv/Scripts/activate
 
 
-create virtual environment
+Create virtual environment Youtube video
 - https://www.youtube.com/watch?v=8h9w0meM8i4&t=406s&ab_channel=ShwetaLodha
 
 cd ~/Documents/my_python_env
