@@ -81,39 +81,25 @@ def plotClassifications(testX, testy, predy, imageW, imageH, numPlotImages, corr
         classifiedFalse.append(predy[classifiedIndex[i]])
     return classifiedTrue, classifiedFalse
 
+
 if __name__ == '__main__':
     
     #Load the MNIST dataset
-    (trainX, trainy), (testX, testy) = mnist.load_data()
-    numTrainingSamples, imageW, imageH = trainX.shape
-    numTestingSamples = len(testX)
+    (trainX_orig, trainy_orig), (testX_orig, testy_orig) = mnist.load_data()
+    numTrainingSamples, imageW, imageH = trainX_orig.shape
+    numTestingSamples = len(testX_orig)
     
-    #Adjustable parameters
-    trainingSampleSize = 10000 #number between 0 and 60000
-    testingSampleSize = 5000 #number between 0 and 10000
     trainChunkIndex = 0
     testChunkIndex = 0
-    numNeighbors = 3
     numPlotImages = 9
     numTemplates = 64
 
-    assert len(trainX) == len(trainy)
-    assert len(testX) == len(testy)
-    assert trainingSampleSize <= numTrainingSamples
-    assert testingSampleSize <= numTestingSamples
-    
-    numTrainChunks = numTrainingSamples//trainingSampleSize
-    numTestChunks = numTestingSamples//testingSampleSize
-
     # Change to np.array and type to int/float
-    trainX = np.asarray(trainX).astype(float)
-    trainy = np.asarray(trainy).astype(int)
-    testX = np.asarray(testX).astype(float)
-    testy = np.asarray(testy).astype(int)
+    trainX_orig = np.asarray(trainX_orig).astype(float)
+    trainy_orig = np.asarray(trainy_orig).astype(int)
+    testX_orig = np.asarray(testX_orig).astype(float)
+    testy_orig = np.asarray(testy_orig).astype(int)
     
-    #Need to preprocess the data by chunking it into sizes of chunkSize datapoints in each chunk
-    trainChunks, testChunks = reshapeAndChunk(trainX, trainy, testX, testy, numTrainChunks, numTestChunks)
-    (trainX, trainy), (testX, testy) = trainChunks[trainChunkIndex], testChunks[testChunkIndex]
 
     ans = '-1'
     while ans != '0':
@@ -123,8 +109,26 @@ if __name__ == '__main__':
         1. Task 1: kNearestNeighbour without clustering
         2. Task 2: kNearestNeighbour with kmeans clustering
         3. Comparison of Task 1 and Task 2
+        4. kNN, K = 7
         """)
         ans = input("Select a task: ")
+
+        #Adjustable parameters
+        trainingSampleSize = int(input("Training sample size: ")) #number between 0 and 60000
+        testingSampleSize = int(input("Testing sample size: ")) #number between 0 and 10000
+        numNeighbors = int(input("KNN, K = "))
+
+        assert len(trainX_orig) == len(trainy_orig)
+        assert len(testX_orig) == len(testy_orig)
+        assert trainingSampleSize <= numTrainingSamples
+        assert testingSampleSize <= numTestingSamples
+        
+        numTrainChunks = numTrainingSamples//trainingSampleSize
+        numTestChunks = numTestingSamples//testingSampleSize
+
+        #Need to preprocess the data by chunking it into sizes of chunkSize datapoints in each chunk
+        trainChunks, testChunks = reshapeAndChunk(trainX_orig, trainy_orig, testX_orig, testy_orig, numTrainChunks, numTestChunks)
+        (trainX, trainy), (testX, testy) = trainChunks[trainChunkIndex], testChunks[testChunkIndex]
 
         if ans == '1' or ans == '2':
             if ans == '2':
@@ -178,5 +182,23 @@ if __name__ == '__main__':
             accRateC = metrics.accuracy_score(testy, predyC)
             print("Accuracy Rate of the classification without clustering: ", accRate)
             print("Error Rate of the classification without clustering: ", 1-accRate)
+            print("Accuracy Rate of the classification with clustering: ", accRateC)
+            print("Error Rate of the classification with clustering: ", 1-accRateC)
+        if ans == '4':
+            classes, binTime = binByLabel(trainX, trainy, imageW, imageH)     
+            trainX_C, trainy_C, clusterTime = clusterDataSet(classes, numTemplates)
+            print("Time of sorting data into classes: ", binTime, " seconds")
+            print("Time of clustering data into : ", numTemplates, " templates: ", clusterTime," seconds")
+            
+            #Run the kNearestNeighbor algorithm with euclidean distance
+            predyC, calcTimeC, predTimeC = knnEuclideanClassifier(trainX_C, trainy_C, testX, numNeighbors)
+            print("Time of fitting clustered data: ", calcTimeC, " seconds")
+            print("Time of prediciting data when clustered: ", predTimeC, " seconds")
+            
+            #Creating and plotting the confusion matrix
+            createAndPlotConfusionMatrix(testy, predyC)
+                        
+            #Creating and printing the error rate
+            accRateC = metrics.accuracy_score(testy, predyC)
             print("Accuracy Rate of the classification with clustering: ", accRateC)
             print("Error Rate of the classification with clustering: ", 1-accRateC)
