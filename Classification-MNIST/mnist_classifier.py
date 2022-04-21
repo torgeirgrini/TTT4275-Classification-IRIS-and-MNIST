@@ -81,6 +81,7 @@ def plotClassifications(testX, testy, predy, imageW, imageH, numPlotImages, corr
         classifiedFalse.append(predy[classifiedIndex[i]])
     return classifiedTrue, classifiedFalse
 
+
 if __name__ == '__main__':
     
     #Load the MNIST dataset
