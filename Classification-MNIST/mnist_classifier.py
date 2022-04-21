@@ -109,7 +109,7 @@ if __name__ == '__main__':
         1. Task 1: kNearestNeighbour without clustering
         2. Task 2: kNearestNeighbour with kmeans clustering
         3. Comparison of Task 1 and Task 2
-        4. kNN, K = 7
+        4. kNN w/ kmeans clustering
         """)
         ans = input("Select a task: ")
 
