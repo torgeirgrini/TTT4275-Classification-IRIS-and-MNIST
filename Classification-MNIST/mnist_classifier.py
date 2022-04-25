@@ -187,7 +187,7 @@ if __name__ == '__main__':
             classes, binTime = binByLabel(trainX, trainy, imageW, imageH)     
             trainX, trainy, clusterTime = clusterDataSet(classes, numTemplates)
             print("Time of sorting data into classes: ", binTime, " seconds")
-            print("Time of clustering data into : ", numTemplates, " templates: ", clusterTime," seconds")
+            print("Time of clustering data into ", numTemplates, " templates: ", clusterTime," seconds")
             
             #Run the kNearestNeighbor algorithm with euclidean distance
             predy, calcTime, predTime = knnEuclideanClassifier(trainX, trainy, testX, numNeighbors)
