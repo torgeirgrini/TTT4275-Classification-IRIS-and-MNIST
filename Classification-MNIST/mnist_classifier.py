@@ -1,7 +1,6 @@
 from keras.datasets import mnist
 import numpy as np
 from matplotlib import pyplot as plt
-#from sklearn.neighbors import KNeighborsClassifier
 from sklearn.cluster import KMeans
 from sklearn import metrics
 import timeit
@@ -14,18 +13,18 @@ class kNNEuclideanClassifier:
     def fit(self, trainX, trainY):
         self.trainX = trainX
         self.trainY = trainY
-        
+
     def predict(self, testX):
         predY = []
         for x1 in testX:
-            nearestNeigbourDist = [euclideanDistance(self.trainX[i], testX[0]) for i in range(self.k)] 
+            nearestNeigbourDist = [euclideanDistance(self.trainX[i], x1) for i in range(self.k)] 
             nearestNeigbourLabels = [self.trainY[i] for i in range(self.k)]
-            for i, x2 in enumerate(self.trainX):
+            for x2, y2 in zip(self.trainX, self.trainY):
                 dist = euclideanDistance(x1,x2)
                 if dist < max(nearestNeigbourDist):
                     maxIndex = np.argmax(nearestNeigbourDist)
                     nearestNeigbourDist[maxIndex] = dist
-                    nearestNeigbourLabels[maxIndex] = self.trainY[i]
+                    nearestNeigbourLabels[maxIndex] = y2
             predY.append(np.bincount(nearestNeigbourLabels).argmax())
         return predY
                     
@@ -49,20 +48,8 @@ def reshapeAndChunk(trainX, trainy, testX, testy, numTrainChunks, numTestChunks)
         trainingChunks.append((trainX[i], trainy[i]))
     for j in range(numTestChunks):
         testingChunks.append((testX[j], testy[j]))
-        
     return trainingChunks, testingChunks
-    
-"""
-def knnEuclideanClassifier(trainX, trainy, testX, numNeighbors):
-    neigh = KNeighborsClassifier(n_neighbors=numNeighbors, metric = 'euclidean')
-    start = timeit.default_timer()
-    neigh.fit(trainX, trainy)
-    calcTime = timeit.default_timer() - start
-    start = timeit.default_timer()
-    predy = neigh.predict(testX)
-    predTime = timeit.default_timer() - start
-    return predy, calcTime, predTime
-"""
+
 def knnEuclideanClassifier(trainX, trainy, testX, numNeighbors):
     neigh = kNNEuclideanClassifier(k=numNeighbors)
     start = timeit.default_timer()
@@ -71,18 +58,16 @@ def knnEuclideanClassifier(trainX, trainy, testX, numNeighbors):
     start = timeit.default_timer()
     predy = neigh.predict(testX)
     predTime = timeit.default_timer() - start
-    return predy, calcTime, predTime
+    return predy, calcTime, predTime 
 
-
-def binByLabel(X, y, imageW, imageH):
+def binByLabel(trainX, trainy, imageW, imageH):
     classes = dict()
     start = timeit.default_timer()
-    for i in np.unique(y):
-        classIndexes = np.nonzero(y == i)[0]
-        classes[i] = [X[j].reshape(imageW*imageH) for j in classIndexes]
+    for i in np.unique(trainy):
+        classIndexes = np.nonzero(trainy == i)[0]
+        classes[i] = [trainX[j].reshape(imageW*imageH) for j in classIndexes]
     binTime = timeit.default_timer() - start
     return classes, binTime
-
 
 def clusterDataSet(classes, numTemplates):
     clusterLabels = []
@@ -99,7 +84,7 @@ def clusterDataSet(classes, numTemplates):
 def createAndPlotConfusionMatrix(testy, predy):
     confusionMatrix = metrics.confusion_matrix(testy, predy)
     dispConfusionMatrix = metrics.ConfusionMatrixDisplay(confusionMatrix)
-    dispConfusionMatrix.plot()
+    dispConfusionMatrix.plot(colorbar = False)
     
 def plotClassifications(testX, testy, predy, imageW, imageH, numPlotImages, correctClassifications):
     if correctClassifications:
@@ -111,6 +96,8 @@ def plotClassifications(testX, testy, predy, imageW, imageH, numPlotImages, corr
         classifiedImage = testX[classifiedIndex[i]]
         classifiedImage = classifiedImage.reshape(imageW,imageH)
         plt.subplot(330 + 1 + i)
+        plt.title(f"True: {testy[classifiedIndex[i]]}, Pred: {predy[classifiedIndex[i]]}")
+        plt.axis('off')
         plt.imshow(classifiedImage, cmap=plt.get_cmap('gray'))
         classifiedTrue.append(testy[classifiedIndex[i]])
         classifiedFalse.append(predy[classifiedIndex[i]])
@@ -176,6 +163,7 @@ if __name__ == '__main__':
             
             #Creating and plotting the confusion matrix
             createAndPlotConfusionMatrix(testy, predy)
+            plt.title(f"({numNeighbors})NN classifier")
             
             #Creating and printing the error rate
             accRate = metrics.accuracy_score(testy, predy)
@@ -184,6 +172,7 @@ if __name__ == '__main__':
             plt.show()
             
         if ans == '2':
+            #Cluster the training
             classes, binTime = binByLabel(trainX, trainy, imageW, imageH)     
             trainX, trainy, clusterTime = clusterDataSet(classes, numTemplates)
             print("Time of sorting data into classes: ", binTime, " seconds")
@@ -197,6 +186,7 @@ if __name__ == '__main__':
             
             #Creating and plotting the confusion matrix
             createAndPlotConfusionMatrix(testy, predy)
+            plt.title(f"({numNeighbors})NN classifier")
             
             #Creating and printing the error rate
             accRate = metrics.accuracy_score(testy, predy)
